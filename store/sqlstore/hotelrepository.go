@@ -13,7 +13,7 @@ type HotelRepository struct {
 func (r HotelRepository) FindAll() ([]model.Hotel, error) {
 	hotels := []model.Hotel{}
 
-	q := `SELECT h.id, a.id, h.name, h.stars_count, a.country, a.city, a.street, a.house 
+	q := `SELECT h.id, a.id, h.name, h.description, h.stars_count, a.country, a.city, a.street, a.house 
 		  FROM hotels h
 		  INNER JOIN address a on h.address_id = a.id`
 	rows, err := r.store.db.Query(q)
@@ -35,6 +35,7 @@ func (r HotelRepository) FindAll() ([]model.Hotel, error) {
 			&h.ID,
 			&h.Address.ID,
 			&h.Name,
+			&h.Description,
 			&h.StarsCount,
 			&h.Address.Country,
 			&h.Address.City,
@@ -54,7 +55,7 @@ func (r HotelRepository) Find(id int) (*model.Hotel, error) {
 	h := &model.Hotel{
 		Address: a,
 	}
-	q := `SELECT h.id, a.id, h.name, h.stars_count, a.country, a.city, a.street, a.house 
+	q := `SELECT h.id, a.id, h.name, h.description, h.stars_count, a.country, a.city, a.street, a.house 
 		  FROM hotels h
 		  INNER JOIN address a on h.address_id = a.id
 		  WHERE h.id = $1`
@@ -65,6 +66,7 @@ func (r HotelRepository) Find(id int) (*model.Hotel, error) {
 		&h.ID,
 		&h.Address.ID,
 		&h.Name,
+		&h.Description,
 		&h.StarsCount,
 		&h.Address.Country,
 		&h.Address.City,
@@ -81,7 +83,7 @@ func (r HotelRepository) Find(id int) (*model.Hotel, error) {
 
 func (r HotelRepository) FindByCountry(country string) ([]model.Hotel, error) {
 	hotels := []model.Hotel{}
-	q := `SELECT h.id, a.id, h.name, h.stars_count, a.country, a.city, a.street, a.house 
+	q := `SELECT h.id, a.id, h.name, h.description, h.stars_count, a.country, a.city, a.street, a.house 
 		  FROM hotels h
 		  INNER JOIN address a on h.address_id = a.id
 		  WHERE a.country = $1`
@@ -104,6 +106,7 @@ func (r HotelRepository) FindByCountry(country string) ([]model.Hotel, error) {
 			&h.ID,
 			&h.Address.ID,
 			&h.Name,
+			&h.Description,
 			&h.StarsCount,
 			&h.Address.Country,
 			&h.Address.City,
@@ -122,7 +125,7 @@ func (r HotelRepository) FindByCountry(country string) ([]model.Hotel, error) {
 
 func (r HotelRepository) FindByCity(city string) ([]model.Hotel, error) {
 	hotels := []model.Hotel{}
-	q := `SELECT h.id, a.id, h.name, h.stars_count, a.country, a.city, a.street, a.house 
+	q := `SELECT h.id, a.id, h.name, h.description, h.stars_count, a.country, a.city, a.street, a.house 
 		  FROM hotels h
 		  INNER JOIN address a on h.address_id = a.id
 		  WHERE a.city = $1`
@@ -144,6 +147,7 @@ func (r HotelRepository) FindByCity(city string) ([]model.Hotel, error) {
 			&h.ID,
 			&h.Address.ID,
 			&h.Name,
+			&h.Description,
 			&h.StarsCount,
 			&h.Address.Country,
 			&h.Address.City,
