@@ -48,8 +48,6 @@ var (
 	//getFreeApartments       = "/apartments/{is_free}"
 	//getApartmentsByClass    = "/apartments/{class}"
 
-	//getImages = "/apartments/{id}/images"
-
 	errIncorrectNumber  = errors.New("incorrect number")
 	errNotAuthenticated = errors.New("not authenticated")
 )
