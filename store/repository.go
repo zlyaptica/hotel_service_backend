@@ -1,6 +1,9 @@
 package store
 
-import "github.com/zlyaptica/hotel_service_backend/internal/app/model"
+import (
+	"encoding/json"
+	"github.com/zlyaptica/hotel_service_backend/internal/app/model"
+)
 
 type AddressRepository interface{}
 
@@ -8,36 +11,38 @@ type ApartmentClassRepository interface { // типа сделал
 	FindAll() ([]model.ApartmentClass, error)
 }
 
-// a *model.Apartment, apartmentClassID, hotelID int
 type ApartmentRepository interface {
-	Create(bedCount, price, apartmentClassID, hotelID int) error
+	Create(bedCount, price, apartmentClassID, hotelID json.Number, name string) error
 	Delete(id int) error
 	FindAll() ([]model.Apartment, error)
 	Find(id int) (*model.Apartment, error)
-	FindByHotel(hotel string) ([]model.Apartment, error)
+	GetPriceApartment(id int) (int, error)
+	FillRoom(id int) error
+	FindByHotelID(id int) ([]model.Apartment, error)
 	FindByBedCount(count int) ([]model.Apartment, error)
 	FindFree(bool) ([]model.Apartment, error)
 	FindByClass(class string) ([]model.Apartment, error)
 }
 
-type UserRepository interface { // типа сделал
+type UserRepository interface {
 	Create(user *model.User) error
 	Find(id int) (*model.User, error)
 	FindByPhone(string) (*model.User, error)
 }
 
-type HotelRepository interface { // сделал
+type HotelRepository interface {
 	FindAll() ([]model.Hotel, error)
 	Find(id int) (*model.Hotel, error)
 	FindByCountry(country string) ([]model.Hotel, error)
 	FindByCity(city string) ([]model.Hotel, error)
 }
 
-type ImageRepository interface {
-	GetImages(id int) ([]model.Image, error)
+type ApartmentImageRepository interface {
+	GetImagesByHotelID(id int) ([]model.ApartmentImage, error)
 }
 
 type TransactRepository interface {
 	Create(t *model.Transact) error
-	FindTransactsByUserID(id int) ([]model.Transact, error)
+	CreateTransact(t *model.Transact) error
+	FindTransactsByPhoneNumber(phoneNumber string) ([]model.Transact, error)
 }

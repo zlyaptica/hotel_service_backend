@@ -1,6 +1,6 @@
 package model
 
-type Image struct {
+type ApartmentImage struct {
 	ID        int        `json:"id"`
 	Apartment *Apartment `json:"apartment"`
 	Address   string     `json:"address"`

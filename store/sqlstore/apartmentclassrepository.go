@@ -12,7 +12,7 @@ type ApartmentClassRepository struct {
 
 func (r ApartmentClassRepository) FindAll() ([]model.ApartmentClass, error) {
 	apartmentClasses := []model.ApartmentClass{}
-	q := `SELECT id, class FROM apartments_classes`
+	q := `SELECT id, class FROM apartment_classes`
 	rows, err := r.store.db.Query(q)
 	defer rows.Close()
 

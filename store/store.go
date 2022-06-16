@@ -6,6 +6,6 @@ type Store interface {
 	Apartment() ApartmentRepository
 	User() UserRepository
 	Hotel() HotelRepository
-	Image() ImageRepository
+	ApartmentImage() ApartmentImageRepository
 	Transact() TransactRepository
 }

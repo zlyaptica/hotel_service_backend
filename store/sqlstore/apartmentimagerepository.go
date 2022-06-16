@@ -6,13 +6,13 @@ import (
 	"github.com/zlyaptica/hotel_service_backend/store"
 )
 
-type ImageRepository struct {
+type ApartmentImageRepository struct {
 	store *Store
 }
 
-func (r ImageRepository) GetImages(id int) ([]model.Image, error) {
-	images := []model.Image{}
-	q := `SELECT id, apartment_id, address FROM images WHERE apartment_id = $1`
+func (r ApartmentImageRepository) GetImagesByHotelID(id int) ([]model.ApartmentImage, error) {
+	images := []model.ApartmentImage{}
+	q := `SELECT id, hotel_id, address FROM apartment_images WHERE hotel_id = $1`
 	rows, err := r.store.db.Query(q, id)
 	defer rows.Close()
 
@@ -25,7 +25,7 @@ func (r ImageRepository) GetImages(id int) ([]model.Image, error) {
 
 	for rows.Next() {
 		a := &model.Apartment{}
-		i := model.Image{
+		i := model.ApartmentImage{
 			Apartment: a,
 		}
 		err := rows.Scan(

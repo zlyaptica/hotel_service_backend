@@ -13,7 +13,7 @@ type Store struct {
 	apartmentRepository      *ApartmentRepository
 	userRepository           *UserRepository
 	hotelRepository          *HotelRepository
-	imageRepository          *ImageRepository
+	apartmentImageRepository *ApartmentImageRepository
 	transactRepository       *TransactRepository
 }
 
@@ -83,16 +83,16 @@ func (s *Store) Hotel() store.HotelRepository {
 	return s.hotelRepository
 }
 
-func (s *Store) Image() store.ImageRepository {
-	if s.imageRepository != nil {
-		return s.imageRepository
+func (s *Store) ApartmentImage() store.ApartmentImageRepository {
+	if s.apartmentImageRepository != nil {
+		return s.apartmentImageRepository
 	}
 
-	s.imageRepository = &ImageRepository{
+	s.apartmentImageRepository = &ApartmentImageRepository{
 		store: s,
 	}
 
-	return s.imageRepository
+	return s.apartmentImageRepository
 }
 
 func (s *Store) Transact() store.TransactRepository {
