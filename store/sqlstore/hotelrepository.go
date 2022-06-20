@@ -10,6 +10,66 @@ type HotelRepository struct {
 	store *Store
 }
 
+func (r HotelRepository) Create(hotel *model.Hotel) error {
+	q := `INSERT INTO address (country, city, street, house) VALUES ($1, $2, $3, $4) RETURNING id`
+	var addressID int
+	_ = r.store.db.QueryRow(q,
+		hotel.Address.Country,
+		hotel.Address.City,
+		hotel.Address.Street,
+		hotel.Address.House,
+	).Scan(&addressID)
+	q = `INSERT INTO hotels (name, address_id, stars_count, description, header_image_address) 
+		 VALUES ($1, $2, $3, $4, $5) RETURNING id`
+	return r.store.db.QueryRow(
+		q,
+		hotel.Name,
+		addressID,
+		hotel.StarsCount,
+		hotel.Description,
+		hotel.HeaderImageAddress,
+	).Scan(&hotel.ID)
+}
+
+func (r HotelRepository) Delete(id int) error {
+	q := `SELECT address_id FROM hotels where id = $1`
+	var addressID int
+	_ = r.store.db.QueryRow(q, id).Scan(&addressID)
+
+	q = `DELETE FROM hotels WHERE id = $1`
+	_, err := r.store.db.Query(q, id)
+
+	q = `DELETE FROM address WHERE id = $1`
+	_, err = r.store.db.Query(q, addressID)
+	return err
+}
+func (r HotelRepository) Update(hotel *model.Hotel) error {
+	q := `SELECT address_id FROM hotels WHERE id = $1`
+	var addressID int
+	_ = r.store.db.QueryRow(q, hotel.ID).Scan(&addressID)
+
+	q = `UPDATE address SET (country, city, street, house) = ($1, $2, $3, $4) WHERE id = $5`
+	_, err := r.store.db.Query(
+		q,
+		hotel.Address.Country,
+		hotel.Address.City,
+		hotel.Address.Street,
+		hotel.Address.House,
+		addressID,
+	)
+
+	q = `UPDATE hotels SET (name, stars_count, description, header_image_address) = ($1, $2, $3, $4) WHERE id = $5`
+	_, err = r.store.db.Query(
+		q,
+		hotel.Name,
+		hotel.StarsCount,
+		hotel.Description,
+		hotel.HeaderImageAddress,
+		hotel.ID,
+	)
+	return err
+}
+
 func (r HotelRepository) FindAll() ([]model.Hotel, error) {
 	hotels := []model.Hotel{}
 

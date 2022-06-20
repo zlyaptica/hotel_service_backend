@@ -28,9 +28,13 @@ type UserRepository interface {
 	Create(user *model.User) error
 	Find(id int) (*model.User, error)
 	FindByPhone(string) (*model.User, error)
+	Delete(phoneNumber string) error
 }
 
 type HotelRepository interface {
+	Create(hotel *model.Hotel) error
+	Delete(id int) error
+	Update(hotel *model.Hotel) error
 	FindAll() ([]model.Hotel, error)
 	Find(id int) (*model.Hotel, error)
 	FindByCountry(country string) ([]model.Hotel, error)

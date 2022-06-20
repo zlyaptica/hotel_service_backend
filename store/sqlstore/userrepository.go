@@ -2,6 +2,8 @@ package sqlstore
 
 import (
 	"database/sql"
+	"errors"
+	"fmt"
 	"github.com/zlyaptica/hotel_service_backend/internal/app/model"
 	"github.com/zlyaptica/hotel_service_backend/store"
 )
@@ -9,6 +11,10 @@ import (
 type UserRepository struct {
 	store *Store
 }
+
+var (
+	errUnknownPhoneNumber = errors.New("there is no user with this phone number")
+)
 
 func (r *UserRepository) Create(u *model.User) error {
 	q := `INSERT INTO guests (lname, fname, phone_number) VALUES ($1, $2, $3) RETURNING id`
@@ -18,6 +24,24 @@ func (r *UserRepository) Create(u *model.User) error {
 		u.FName,
 		u.PhoneNumber,
 	).Scan(&u.ID)
+}
+
+func (r *UserRepository) Delete(phoneNumber string) error {
+	q := `DELETE FROM guests WHERE phone_number = $1`
+	result, err := r.store.db.Exec(q, phoneNumber)
+	if err != nil {
+		return err
+	}
+	fmt.Println("result:", result, "err:", err)
+	row, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	fmt.Println("row:", row, "err:", err)
+	if row != 1 {
+		return errUnknownPhoneNumber
+	}
+	return err
 }
 
 func (r *UserRepository) Find(id int) (*model.User, error) {
