@@ -1,11 +1,8 @@
 package sqlstore
 
 import (
-	"database/sql"
 	"errors"
-	"fmt"
 	"github.com/zlyaptica/hotel_service_backend/internal/app/model"
-	"github.com/zlyaptica/hotel_service_backend/store"
 )
 
 type UserRepository struct {
@@ -32,54 +29,52 @@ func (r *UserRepository) Delete(phoneNumber string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("result:", result, "err:", err)
 	row, err := result.RowsAffected()
 	if err != nil {
 		return err
 	}
-	fmt.Println("row:", row, "err:", err)
 	if row != 1 {
 		return errUnknownPhoneNumber
 	}
 	return err
 }
 
-func (r *UserRepository) Find(id int) (*model.User, error) {
-	g := &model.User{}
-	q := `SELECT id, lname, fname, phone_number FROM guests WHERE id = $1`
-	if err := r.store.db.QueryRow(
-		q,
-		id,
-	).Scan(
-		&g.ID,
-		&g.LName,
-		&g.FName,
-		&g.PhoneNumber,
-	); err != nil {
-		if err == sql.ErrNoRows {
-			return nil, store.ErrRecordNotFound
-		}
-		return nil, err
-	}
-	return g, nil
-}
+//func (r *UserRepository) FindByPhone(phone string) (*model.User, error) {
+//	u := &model.User{}
+//	q := `SELECT id, lname, fname, phone_number FROM guests WHERE phone_number = $1`
+//	if err := r.store.db.QueryRow(
+//		q,
+//		phone,
+//	).Scan(
+//		&u.ID,
+//		&u.LName,
+//		&u.FName,
+//		&u.PhoneNumber,
+//	); err != nil {
+//		if err == sql.ErrNoRows {
+//			return nil, store.ErrRecordNotFound
+//		}
+//		return nil, err
+//	}
+//	return u, nil
+//}
 
-func (r *UserRepository) FindByPhone(phone string) (*model.User, error) {
-	g := &model.User{}
-	q := `SELECT id, lname, fname, phone_number FROM guests WHERE phone_number = $1`
-	if err := r.store.db.QueryRow(
-		q,
-		phone,
-	).Scan(
-		&g.ID,
-		&g.LName,
-		&g.FName,
-		&g.PhoneNumber,
-	); err != nil {
-		if err == sql.ErrNoRows {
-			return nil, store.ErrRecordNotFound
-		}
-		return nil, err
-	}
-	return g, nil
-}
+//func (r *UserRepository) Find(id int) (*model.User, error) {
+//	u := &model.User{}
+//	q := `SELECT id, lname, fname, phone_number FROM guests WHERE id = $1`
+//	if err := r.store.db.QueryRow(
+//		q,
+//		id,
+//	).Scan(
+//		&u.ID,
+//		&u.LName,
+//		&u.FName,
+//		&u.PhoneNumber,
+//	); err != nil {
+//		if err == sql.ErrNoRows {
+//			return nil, store.ErrRecordNotFound
+//		}
+//		return nil, err
+//	}
+//	return u, nil
+//}

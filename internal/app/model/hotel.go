@@ -8,5 +8,3 @@ type Hotel struct {
 	Description        string   `json:"description"`
 	HeaderImageAddress string   `json:"header_image_address"`
 }
-
-// TODO СДЕЛАТЬ БЛЯДКСУЮ ВАЛИДАЦИЮ

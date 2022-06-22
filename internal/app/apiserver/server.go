@@ -3,7 +3,6 @@ package apiserver
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -27,10 +26,10 @@ type ctxKey int8
 var (
 	getApartmentClasses = "/apartmentclasses"
 
-	createUsers   = "/users"
-	createSession = "/sessions"
-	whoami        = "/whoami"
-	deleteUsers   = "/users/{phone_number}"
+	createUsers = "/users"
+	deleteUsers = "/users/{phone_number}"
+	//createSession = "/sessions"
+	//whoami        = "/whoami"
 
 	postTransact         = "/transacts"
 	getTransactsByUserID = "/user/{phoneNumber}/transacts"
@@ -38,21 +37,16 @@ var (
 	getHotels   = "/hotels"
 	getHotel    = "/hotels/{id}"
 	createHotel = "/hotels"
-	deleteHotel = "/hotels/{id}"
 	updateHotel = "/hotels/{id}"
+	//deleteHotel = "/hotels/{id}"
 	//getHotelsByCountry = "/hotels/{country}"
 	//getHotelsByCity    = "/hotels/{city}"
 
 	postApartments         = "/apartments"
 	getApartmentsByHotelID = "/hotel/{id}/apartments"
-	//getApartments           = "/apartments"
-	//getApartment            = "/apartments/{id}"
-	//getApartmentsByBedCount = "/apartments/{bed_count}"
-	//getFreeApartments       = "/apartments/{is_free}"
-	//getApartmentsByClass    = "/apartments/{class}"
 
-	errIncorrectNumber  = errors.New("incorrect number")
-	errNotAuthenticated = errors.New("not authenticated")
+	//errNotAuthenticated = errors.New("not authenticated")
+	//errIncorrectNumber  = errors.New("incorrect number")
 )
 
 type server struct {
@@ -84,40 +78,30 @@ func (s *server) configureRouter() {
 	s.router.Use(s.logRequest)
 	s.router.Use(s.setCORS)
 	s.router.HandleFunc(createUsers, s.handleUsersCreate()).Methods("POST", "OPTIONS")
-	s.router.HandleFunc(createSession, s.handleSessionCreate()).Methods("POST", "OPTIONS")
 	s.router.HandleFunc(deleteUsers, s.handleUsersDelete()).Methods("DELETE", "OPTIONS")
+	//s.router.HandleFunc(createSession, s.handleSessionCreate()).Methods("POST", "OPTIONS")
 
-	private := s.router.PathPrefix("/private").Subrouter()
-	private.Use(s.authenticateUser)
-	private.HandleFunc(whoami, s.handleWhoami()).Methods("GET")
+	//private := s.router.PathPrefix("/private").Subrouter()
+	//private.Use(s.authenticateUser)
+	//private.HandleFunc(whoami, s.handleWhoami()).Methods("GET")
 
 	// ТРАНЗАКЦИИ
 	s.router.HandleFunc(postTransact, s.handleTransactCreate()).Methods("POST", "OPTIONS")
 	s.router.HandleFunc(getTransactsByUserID, s.handleTransactsGetByUserID()).Methods("GET")
 
 	// ОТЕЛИ
-	s.router.HandleFunc(getHotels, s.handleHotelsGet()).Methods("GET")
+	s.router.HandleFunc(getHotels, s.handleHotelsGet()).Methods("GET") // хэндлер на путь localhost:8080/hotels
+	// с методом GET
 	s.router.HandleFunc(getHotel, s.handleHotelGet()).Methods("GET")
 	s.router.HandleFunc(createHotel, s.handleHotelCreate()).Methods("POST", "OPTIONS")
-	s.router.HandleFunc(deleteHotel, s.handleHotelDelete()).Methods("DELETE", "OPTIONS")
 	s.router.HandleFunc(updateHotel, s.handleHotelUpdate()).Methods("PUT", "OPTIONS")
-	//s.router.HandleFunc(getHotelsByCountry, s.handleHotelsByCountryGet()).Methods("GET")
-	//s.router.HandleFunc(getHotelsByCity, s.handleHotelsByCityGet()).Methods("GET")
 
 	// АПАРТАМЕНТЫ
 	s.router.HandleFunc(postApartments, s.handleApartmentsCreate()).Methods("POST", "OPTIONS")
 	s.router.HandleFunc(getApartmentsByHotelID, s.handleApartmentsByHotelIDGet()).Methods("GET")
-	//s.router.HandleFunc(getApartments, s.handleApartmentsGet()).Methods("GET")
-	//s.router.HandleFunc(getApartment, s.handleApartmentGet()).Methods("GET")
-	//s.router.HandleFunc(getApartmentsByBedCount, s.handleApartmentsByBedCountGet).Methods("GET")
-	//s.router.HandleFunc(getFreeApartments, s.handleApartmentsByFreeGet).Methods("GET")
-	//s.router.HandleFunc(getApartmentsByClass, s.handleApartmentsByClass).Methods("GET")
 
 	// КЛАСС АПАРТАМЕНТА
 	s.router.HandleFunc(getApartmentClasses, s.handleApartmentClassesGet()).Methods("GET")
-
-	// КЛАСС КАРТИНОК
-	//s.router.HandleFunc(getImages, s.handleImagesGet()).Methods("GET")
 }
 
 func (s *server) setCORS(next http.Handler) http.Handler {
@@ -191,65 +175,65 @@ func (s *server) handleUsersCreate() http.HandlerFunc {
 	}
 }
 
-func (s *server) authenticateUser(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		session, err := s.sessionStore.Get(r, sessionName)
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, err)
-			return
-		}
+//func (s *server) authenticateUser(next http.Handler) http.Handler {
+//	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+//		session, err := s.sessionStore.Get(r, sessionName)
+//		if err != nil {
+//			s.error(w, r, http.StatusInternalServerError, err)
+//			return
+//		}
+//
+//		id, ok := session.Values["user_id"]
+//		if !ok {
+//			s.error(w, r, http.StatusUnauthorized, errNotAuthenticated)
+//			return
+//		}
+//		g, err := s.store.User().Find(id.(int))
+//		if err != nil {
+//			s.error(w, r, http.StatusUnauthorized, errNotAuthenticated)
+//			return
+//		}
+//		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), ctxKeyUser, g)))
+//	})
+//}
 
-		id, ok := session.Values["user_id"]
-		if !ok {
-			s.error(w, r, http.StatusUnauthorized, errNotAuthenticated)
-			return
-		}
-		g, err := s.store.User().Find(id.(int))
-		if err != nil {
-			s.error(w, r, http.StatusUnauthorized, errNotAuthenticated)
-			return
-		}
-		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), ctxKeyUser, g)))
-	})
-}
+//func (s *server) handleWhoami() http.HandlerFunc {
+//	return func(w http.ResponseWriter, r *http.Request) {
+//		s.respond(w, r, http.StatusOK, r.Context().Value(ctxKeyUser).(*model.User))
+//	}
+//}
 
-func (s *server) handleWhoami() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		s.respond(w, r, http.StatusOK, r.Context().Value(ctxKeyUser).(*model.User))
-	}
-}
-
-func (s *server) handleSessionCreate() http.HandlerFunc {
-	type request struct {
-		PhoneNumber string `json:"phone_number"`
-	}
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		req := &request{}
-		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
-			s.error(w, r, http.StatusBadRequest, err)
-			return
-		}
-		g, err := s.store.User().FindByPhone(req.PhoneNumber)
-		if err != nil {
-			s.error(w, r, http.StatusUnauthorized, errIncorrectNumber)
-		}
-
-		session, err := s.sessionStore.Get(r, sessionName)
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, err)
-			return
-		}
-
-		session.Values["user_id"] = g.ID
-		if err := s.sessionStore.Save(r, w, session); err != nil {
-			s.error(w, r, http.StatusInternalServerError, err)
-			return
-		}
-
-		s.respond(w, r, http.StatusOK, nil)
-	}
-}
+//func (s *server) handleSessionCreate() http.HandlerFunc {
+//	type request struct {
+//		PhoneNumber string `json:"phone_number"`
+//	}
+//
+//	return func(w http.ResponseWriter, r *http.Request) {
+//		req := &request{}
+//		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+//			s.error(w, r, http.StatusBadRequest, err)
+//			return
+//		}
+//		g, err := s.store.User().FindByPhone(req.PhoneNumber)
+//		if err != nil {
+//			s.error(w, r, http.StatusUnauthorized, errIncorrectNumber)
+//		}
+//
+//		session, err := s.sessionStore.Get(r, sessionName)
+//		if err != nil {
+//			s.error(w, r, http.StatusInternalServerError, err)
+//			return
+//		}
+//
+//		session.Values["user_id"] = g.ID
+//		if err := s.sessionStore.Save(r, w, session); err != nil {
+//			s.error(w, r, http.StatusInternalServerError, err)
+//			return
+//		}
+//
+//		s.respond(w, r, http.StatusOK, nil)
+//	}
+//}
 
 func (s *server) handleUsersDelete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -323,7 +307,7 @@ func (s *server) handleTransactCreate() http.HandlerFunc {
 }
 
 func (s *server) handleTransactsGetByUserID() http.HandlerFunc {
-	type responce struct {
+	type response struct {
 		Items []model.Transact `json:"items"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -335,7 +319,7 @@ func (s *server) handleTransactsGetByUserID() http.HandlerFunc {
 			return
 		}
 
-		resp := &responce{
+		resp := &response{
 			Items: transacts,
 		}
 
@@ -361,19 +345,18 @@ func (s *server) handleApartmentClassesGet() http.HandlerFunc {
 }
 
 func (s *server) handleHotelsGet() http.HandlerFunc {
-	type response struct {
+	type response struct { // структура с массивом отелей для отправки на сайт
 		Hotels []model.Hotel `json:"hotels"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
-
-		hotels, err := s.store.Hotel().FindAll()
+		hotels, err := s.store.Hotel().FindAll() // в отели получаем массив отелей,
+		// в ошибку - ошибку
 		if err != nil {
-			fmt.Println("err:", err)
 			s.error(w, r, http.StatusInternalServerError, err)
-			return
+			return // если есть ошибка, то логируем ее с 500 ошибкой и выходим с функции
 		}
 		resp := &response{
-			Hotels: hotels,
+			Hotels: hotels, // если все ок, то добавляем отели в структуру, которая отправится на сайт
 		}
 		s.respond(w, r, http.StatusOK, resp)
 	}
@@ -412,7 +395,6 @@ func (s *server) handleHotelCreate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &request{}
 		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
-			fmt.Println("err = ", err)
 			s.error(w, r, http.StatusBadRequest, err)
 			return
 		}
@@ -434,26 +416,6 @@ func (s *server) handleHotelCreate() http.HandlerFunc {
 			return
 		}
 		s.respond(w, r, http.StatusCreated, h)
-	}
-}
-
-func (s *server) handleHotelDelete() http.HandlerFunc {
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		id, err := strconv.Atoi(vars["id"])
-		if err != nil {
-			s.error(w, r, http.StatusUnprocessableEntity, err)
-			return
-		}
-
-		_, err = s.store.Hotel().Find(id)
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, err)
-			return
-		}
-		s.store.Hotel().Delete(id)
-		s.respond(w, r, http.StatusOK, nil)
 	}
 }
 
@@ -511,50 +473,6 @@ func (s *server) handleHotelUpdate() http.HandlerFunc {
 	}
 }
 
-//func (s *server) handleHotelsByCountryGet() http.HandlerFunc {
-//	type responce struct {
-//		Items []model.Hotel `json:"items"`
-//	}
-//	return func(w http.ResponseWriter, r *http.Request) {
-//		vars := mux.Vars(r)
-//		country := vars["country"]
-//
-//		hotels, err := s.store.Hotel().FindByCountry(country)
-//		if err != nil {
-//			s.error(w, r, http.StatusInternalServerError, err)
-//			return
-//		}
-//
-//		resp := &responce{
-//			Items: hotels,
-//		}
-//
-//		s.respond(w, r, http.StatusOK, resp)
-//	}
-//}
-//
-//func (s *server) handleHotelsByCityGet() http.HandlerFunc {
-//	type responce struct {
-//		Items []model.Hotel `json:"items"`
-//	}
-//	return func(w http.ResponseWriter, r *http.Request) {
-//		vars := mux.Vars(r)
-//		city := vars["city"]
-//
-//		hotels, err := s.store.Hotel().FindByCity(city)
-//		if err != nil {
-//			s.error(w, r, http.StatusInternalServerError, err)
-//			return
-//		}
-//
-//		resp := &responce{
-//			Items: hotels,
-//		}
-//
-//		s.respond(w, r, http.StatusOK, resp)
-//	}
-//}
-
 func (s *server) handleApartmentsCreate() http.HandlerFunc {
 	type request struct {
 		Name             string      `json:"name"`
@@ -577,42 +495,6 @@ func (s *server) handleApartmentsCreate() http.HandlerFunc {
 		s.respond(w, r, http.StatusCreated, nil)
 	}
 }
-
-//func (s *server) handleApartmentsGet() http.HandlerFunc {
-//	type responce struct {
-//		Items []model.Apartment `json:"items"`
-//	}
-//	return func(w http.ResponseWriter, r *http.Request) {
-//		apartments, err := s.store.Apartment().FindAll()
-//		if err != nil {
-//			s.error(w, r, http.StatusInternalServerError, err)
-//			return
-//		}
-//		resp := &responce{
-//			Items: apartments,
-//		}
-//		s.respond(w, r, http.StatusOK, resp)
-//	}
-//}
-
-//func (s *server) handleApartmentGet() http.HandlerFunc {
-//	type responce struct {
-//		Item *model.Apartment `json:"item"`
-//	}
-//	return func(w http.ResponseWriter, r *http.Request) {
-//		vars := mux.Vars(r)
-//		id, err := strconv.Atoi(vars["id"])
-//		apartment, err := s.store.Apartment().Find(id)
-//		if err != nil {
-//			s.error(w, r, http.StatusInternalServerError, err)
-//			return
-//		}
-//		resp := &responce{
-//			Item: apartment,
-//		}
-//		s.respond(w, r, http.StatusOK, resp)
-//	}
-//}
 
 func (s *server) handleApartmentsByHotelIDGet() http.HandlerFunc {
 	type response struct {
@@ -643,25 +525,6 @@ func (s *server) handleApartmentsByHotelIDGet() http.HandlerFunc {
 		s.respond(w, r, http.StatusOK, resp)
 	}
 }
-
-//func (s *server) handleImagesGet() http.HandlerFunc {
-//	type responce struct {
-//		Items []model.ApartmentImage `json:"items"`
-//	}
-//	return func(w http.ResponseWriter, r *http.Request) {
-//		//vars := mux.Vars(r)
-//		//id, err := strconv.Atoi(vars["id"])
-//		images, err := s.store.ApartmentImage().GetImagesByApartmentID(id)
-//		if err != nil {
-//			s.error(w, r, http.StatusInternalServerError, err)
-//			return
-//		}
-//		resp := &responce{
-//			Items: images,
-//		}
-//		s.respond(w, r, http.StatusOK, resp)
-//	}
-//}
 
 func (s *server) error(w http.ResponseWriter, r *http.Request, code int, err error) {
 	s.respond(w, r, code, map[string]string{"error": err.Error()})
