@@ -14,7 +14,7 @@ var (
 )
 
 func (r *UserRepository) Create(u *model.User) error {
-	q := `INSERT INTO guests (lname, fname, phone_number) VALUES ($1, $2, $3) RETURNING id`
+	q := `INSERT INTO users (lname, fname, phone_number) VALUES ($1, $2, $3) RETURNING id`
 	return r.store.db.QueryRow(
 		q,
 		u.LName,
@@ -24,7 +24,7 @@ func (r *UserRepository) Create(u *model.User) error {
 }
 
 func (r *UserRepository) Delete(phoneNumber string) error {
-	q := `DELETE FROM guests WHERE phone_number = $1`
+	q := `DELETE FROM users WHERE phone_number = $1`
 	result, err := r.store.db.Exec(q, phoneNumber)
 	if err != nil {
 		return err
@@ -41,7 +41,7 @@ func (r *UserRepository) Delete(phoneNumber string) error {
 
 //func (r *UserRepository) FindByPhone(phone string) (*model.User, error) {
 //	u := &model.User{}
-//	q := `SELECT id, lname, fname, phone_number FROM guests WHERE phone_number = $1`
+//	q := `SELECT id, lname, fname, phone_number FROM users WHERE phone_number = $1`
 //	if err := r.store.db.QueryRow(
 //		q,
 //		phone,
@@ -61,7 +61,7 @@ func (r *UserRepository) Delete(phoneNumber string) error {
 
 //func (r *UserRepository) Find(id int) (*model.User, error) {
 //	u := &model.User{}
-//	q := `SELECT id, lname, fname, phone_number FROM guests WHERE id = $1`
+//	q := `SELECT id, lname, fname, phone_number FROM users WHERE id = $1`
 //	if err := r.store.db.QueryRow(
 //		q,
 //		id,

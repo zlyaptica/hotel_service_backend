@@ -12,7 +12,7 @@ type TransactRepository struct {
 }
 
 func (r TransactRepository) Create(t *model.Transact) error {
-	q := `INSERT INTO transact (apartment_id, guest_id, date_arrival, date_departure, price, date) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
+	q := `INSERT INTO transact (apartment_id, user_id, date_arrival, date_departure, price, date) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
 	return r.store.db.QueryRow(
 		q,
 		t.Apartment.ID,
@@ -25,8 +25,8 @@ func (r TransactRepository) Create(t *model.Transact) error {
 }
 
 func (r TransactRepository) CreateTransact(t *model.Transact) error {
-	q := `INSERT INTO transact (apartment_id, guest_id, date_arrival, date_departure, price, date) 
-		  VALUES ($1, (SELECT id FROM guests WHERE phone_number = $2), $3, $4, $5, $6) RETURNING id`
+	q := `INSERT INTO transact (apartment_id, user_id, date_arrival, date_departure, price, date) 
+		  VALUES ($1, (SELECT id FROM users WHERE phone_number = $2), $3, $4, $5, $6) RETURNING id`
 	return r.store.db.QueryRow(
 		q,
 		t.Apartment.ID,
@@ -43,7 +43,7 @@ func (r TransactRepository) FindTransactsByPhoneNumber(phoneNumber string) ([]mo
 	q := `SELECT t.id, g.id, g.phone_number, t.price, t.date, t.date_arrival, t.date_departure, 
        a.id, a.bed_count, a.is_free, a.name, a.price, ac.id, ac.class, h.id, h.name
        FROM transact t
-			INNER JOIN guests g on t.guest_id = g.id
+			INNER JOIN users g on t.user_id = g.id
 			INNER JOIN apartments a on a.id = t.apartment_id
        		INNER JOIN apartment_classes ac on ac.id = a.apartment_class_id
        		INNER JOIN hotels h on h.id = a.hotel_id

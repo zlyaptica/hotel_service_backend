@@ -1,0 +1,47 @@
+POST http://localhost:8080/hotels
+Content-Type: application/json
+
+{
+  "name": "Тестовый отель",
+  "stars_count": 3,
+  "description": "Описание тестового отеля",
+  "country": "Russia",
+  "city": "Yshkina",
+  "street": "Kalatushkina",
+  "house": "4",
+  "header_image_address": "/img/VikingHotel/rooms/SMALL2seats/1.jpg"
+}
+
+###
+POST http://localhost:8080/apartments
+Content-Type: application/json
+
+{
+  "name": "Апартаменты топ уровня 2",
+  "apartment_class_id": 4,
+  "hotel_id": 4,
+  "bed_count": 3,
+  "price": 228282
+}
+
+###
+POST http://localhost:8080/transacts
+Content-Type: application/json
+
+{
+  "phone_number": "+79811234567",
+  "apartment_id": 7,
+  "date_arrival": "2022-04-06",
+  "date_departure": "2022-04-11"
+}
+
+###
+GET http://localhost:8080/user/4/transacts
+Accept: application/json
+
+###
+GET http://localhost:8080/hotels
+Accept: application/json
+
+###
+
